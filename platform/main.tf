@@ -17,6 +17,14 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = "argocd"
 
+  wait = true
+  timeout = 600
+
+  set = {
+    name = "crds.install"
+    value = "true"
+  } 
+
   create_namespace = true
 
   values = [
@@ -26,6 +34,11 @@ server:
     type: LoadBalancer
 EOF
   ]
+}
+
+resource "time_sleep" "wait_for_argocd" {
+  depends_on = [helm_release.argocd]
+  create_duration = "30s"
 }
 
 ########################################
@@ -85,6 +98,7 @@ resource "kubernetes_manifest" "argocd_app" {
   }
 
   depends_on = [
-    helm_release.argocd
+    helm_release.argocd,
+    time_sleep.wait_for_argocd
   ]
 }
