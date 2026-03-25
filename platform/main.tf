@@ -1,3 +1,13 @@
+data "terraform_remote_state" "infra" {
+  backend = "s3"
+
+  config = {
+    bucket = "devops-leo-terraform-state"
+    key    = "infra/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 ########################################
 # ArgoCD
 ########################################
