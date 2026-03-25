@@ -2,14 +2,6 @@ provider "aws" {
   region = var.region
 }
 
-data "terraform_remote_state" "infra" {
-  backend = "local"
-
-  config = {
-    path = "../infra/terraform.tfstate"
-  }
-}
-
 provider "kubernetes" {
   host = data.terraform_remote_state.infra.outputs.cluster_endpoint
 
