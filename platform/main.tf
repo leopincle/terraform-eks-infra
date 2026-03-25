@@ -17,12 +17,11 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = "argocd"
 
-  set = [
-    {
+  set {
       name = "crds.install"
       value = "true"
     }
-  ]
+  
 
   create_namespace = true
 
