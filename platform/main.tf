@@ -20,10 +20,12 @@ resource "helm_release" "argocd" {
   wait = true
   timeout = 600
 
-  set = {
-    name = "crds.install"
-    value = "true"
-  } 
+  set = [
+    {
+      name = "crds.install"
+      value = "true"
+    }
+  ]
 
   create_namespace = true
 
