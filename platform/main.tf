@@ -17,9 +17,6 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
   namespace  = "argocd"
 
-  wait = true
-  timeout = 600
-
   set = [
     {
       name = "crds.install"
@@ -36,11 +33,6 @@ server:
     type: LoadBalancer
 EOF
   ]
-}
-
-resource "time_sleep" "wait_for_argocd" {
-  depends_on = [helm_release.argocd]
-  create_duration = "30s"
 }
 
 ########################################
@@ -63,44 +55,3 @@ EOF
   ]
 }
 
-########################################
-# ArgoCD App (GitOps)
-########################################
-resource "kubernetes_manifest" "argocd_app" {
-  manifest = {
-    apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
-
-    metadata = {
-      name      = "ci-cd-app"
-      namespace = "argocd"
-    }
-
-    spec = {
-      project = "default"
-
-      source = {
-        repoURL        = "https://github.com/leopincle/gitops-helm-argocd.git"
-        targetRevision = "main"
-        path           = "helm/ci-cd-app"
-      }
-
-      destination = {
-        server    = "https://kubernetes.default.svc"
-        namespace = "default"
-      }
-
-      syncPolicy = {
-        automated = {
-          prune    = true
-          selfHeal = true
-        }
-      }
-    }
-  }
-
-  depends_on = [
-    helm_release.argocd,
-    time_sleep.wait_for_argocd
-  ]
-}
